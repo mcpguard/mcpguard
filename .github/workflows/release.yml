@@ -1,0 +1,45 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Build binaries
+        run: |
+          mkdir -p build
+          
+          # Build for macOS ARM64
+          GOOS=darwin GOARCH=arm64 go build -o build/mcpguard-darwin-arm64 ./
+          
+          # Build for Linux AMD64
+          GOOS=linux GOARCH=amd64 go build -o build/mcpguard-linux-amd64 ./
+          
+          # Build for Windows AMD64
+          GOOS=windows GOARCH=amd64 go build -o build/mcpguard-windows-amd64.exe ./
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            build/mcpguard-darwin-arm64
+            build/mcpguard-linux-amd64
+            build/mcpguard-windows-amd64.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
