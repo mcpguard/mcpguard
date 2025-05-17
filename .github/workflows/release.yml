@@ -23,15 +23,15 @@ jobs:
       - name: Build binaries
         run: |
           mkdir -p build
-          
+
           # Build for macOS ARM64
-          GOOS=darwin GOARCH=arm64 go build -o build/mcpguard-darwin-arm64 ./
-          
+          GOOS=darwin GOARCH=arm64 go build -o build/mcpguard-darwin-arm64 ./cmd/agent
+
           # Build for Linux AMD64
-          GOOS=linux GOARCH=amd64 go build -o build/mcpguard-linux-amd64 ./
-          
+          GOOS=linux GOARCH=amd64 go build -o build/mcpguard-linux-amd64 ./cmd/agent
+
           # Build for Windows AMD64
-          GOOS=windows GOARCH=amd64 go build -o build/mcpguard-windows-amd64.exe ./
+          GOOS=windows GOARCH=amd64 go build -o build/mcpguard-windows-amd64.exe ./cmd/agent
 
       - name: Create release
         uses: softprops/action-gh-release@v1
