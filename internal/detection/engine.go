@@ -1,12 +1,17 @@
 package detection
 
 import (
+	"bytes"
+	"embed"
 	"fmt"
 	"github.com/mcpguard/mcpguard/internal/mcp"
 	"github.com/spf13/viper"
 	"github.com/zricethezav/gitleaks/v8/config"
 	"github.com/zricethezav/gitleaks/v8/detect"
 )
+
+//go:embed gitleaks.toml
+var configFS embed.FS
 
 type Engine struct {
 	detector *detect.Detector
@@ -19,11 +24,13 @@ func NewEngine() (*Engine, error) {
 	v.SetConfigType("toml")
 
 	// Set path to your local gitleaks.toml file
-	configPath := "internal/detection/gitleaks.toml"
-	v.SetConfigFile(configPath)
+	configData, err := configFS.ReadFile("gitleaks.toml")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read embedded config: %w", err)
+	}
 
-	// Read the config file
-	if err := v.ReadInConfig(); err != nil {
+	// Read the config from the configData bytes
+	if err := v.ReadConfig(bytes.NewReader(configData)); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)
 	}
 
